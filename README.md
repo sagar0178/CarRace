@@ -4,7 +4,7 @@ Simple browser car-race demo with rewarded-ad crash recovery.
 
 ## Run
 
-Open `/home/runner/work/CarRace/CarRace/index.html` in a browser.
+Open `index.html` in a browser from your local clone.
 
 ## AdMob H5 Games Ads setup
 
