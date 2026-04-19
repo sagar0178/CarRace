@@ -68,12 +68,12 @@
     const laneMarkings = new THREE.Group();
     const markGeometry = new THREE.BoxGeometry(0.3, 0.02, 4);
     const markMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const laneMarkingsList = [];
+    const markingMeshes = [];
     for (let z = ROAD_SEGMENT_LENGTH / 2; z > -ROAD_SEGMENT_LENGTH * 1.5; z -= 10) {
       const mark = new THREE.Mesh(markGeometry, markMaterial);
       mark.position.set(0, 0.02, z);
       laneMarkings.add(mark);
-      laneMarkingsList.push(mark);
+      markingMeshes.push(mark);
     }
     scene.add(laneMarkings);
 
@@ -85,13 +85,13 @@
     scene.add(car);
 
     let speed = 0;
-    const acceleration = 0.01;
-    const maxSpeed = 0.9;
+    const accelerationPerFrame = 0.01;
+    const maxSpeedPerFrame = 0.9;
 
     function animate() {
       requestAnimationFrame(animate);
 
-      speed = Math.min(maxSpeed, speed + acceleration);
+      speed = Math.min(maxSpeedPerFrame, speed + accelerationPerFrame);
       const travel = speed;
 
       for (const segment of roadSegments) {
@@ -101,7 +101,7 @@
         }
       }
 
-      for (const mark of laneMarkingsList) {
+      for (const mark of markingMeshes) {
         mark.position.z += travel;
         if (mark.position.z > ROAD_SEGMENT_LENGTH / 2) {
           mark.position.z -= ROAD_LOOP_LENGTH;
