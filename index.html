@@ -30,7 +30,11 @@
       0.1,
       5000
     );
-    camera.position.set(0, 6, 14);
+    const CAMERA_HEIGHT = 6;
+    const CAMERA_DISTANCE = 14;
+    const CAMERA_HEIGHT_OFFSET = 0.5;
+    const CAMERA_LOOK_AHEAD = 10;
+    camera.position.set(0, CAMERA_HEIGHT, CAMERA_DISTANCE);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -44,23 +48,32 @@
     dirLight.position.set(5, 10, 7);
     scene.add(dirLight);
 
-    const roadLength = 2000;
-    const road = new THREE.Mesh(
-      new THREE.PlaneGeometry(10, roadLength),
-      new THREE.MeshStandardMaterial({ color: 0x2d2d2d })
-    );
-    road.rotation.x = -Math.PI / 2;
-    road.position.y = 0;
-    road.position.z = -roadLength / 2 + 20;
-    scene.add(road);
+    const ROAD_WIDTH = 10;
+    const ROAD_SEGMENT_LENGTH = 250;
+    const ROAD_SEGMENT_COUNT = 2;
+    const ROAD_LOOP_LENGTH = ROAD_SEGMENT_LENGTH * ROAD_SEGMENT_COUNT;
+    const roadSegments = [];
+    for (let i = 0; i < ROAD_SEGMENT_COUNT; i++) {
+      const segment = new THREE.Mesh(
+        new THREE.PlaneGeometry(ROAD_WIDTH, ROAD_SEGMENT_LENGTH),
+        new THREE.MeshStandardMaterial({ color: 0x2d2d2d })
+      );
+      segment.rotation.x = -Math.PI / 2;
+      segment.position.y = 0;
+      segment.position.z = -i * ROAD_SEGMENT_LENGTH;
+      roadSegments.push(segment);
+      scene.add(segment);
+    }
 
     const laneMarkings = new THREE.Group();
     const markGeometry = new THREE.BoxGeometry(0.3, 0.02, 4);
     const markMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    for (let z = 10; z > -roadLength + 20; z -= 10) {
+    const laneMarkingsList = [];
+    for (let z = ROAD_SEGMENT_LENGTH / 2; z > -ROAD_SEGMENT_LENGTH * 1.5; z -= 10) {
       const mark = new THREE.Mesh(markGeometry, markMaterial);
       mark.position.set(0, 0.02, z);
       laneMarkings.add(mark);
+      laneMarkingsList.push(mark);
     }
     scene.add(laneMarkings);
 
@@ -79,10 +92,28 @@
       requestAnimationFrame(animate);
 
       speed = Math.min(maxSpeed, speed + acceleration);
-      car.position.z -= speed;
+      const travel = speed;
 
-      camera.position.z = car.position.z + 14;
-      camera.lookAt(car.position.x, car.position.y + 0.5, car.position.z - 10);
+      for (const segment of roadSegments) {
+        segment.position.z += travel;
+        if (segment.position.z > ROAD_SEGMENT_LENGTH / 2) {
+          segment.position.z -= ROAD_LOOP_LENGTH;
+        }
+      }
+
+      for (const mark of laneMarkingsList) {
+        mark.position.z += travel;
+        if (mark.position.z > ROAD_SEGMENT_LENGTH / 2) {
+          mark.position.z -= ROAD_LOOP_LENGTH;
+        }
+      }
+
+      camera.position.z = car.position.z + CAMERA_DISTANCE;
+      camera.lookAt(
+        car.position.x,
+        car.position.y + CAMERA_HEIGHT_OFFSET,
+        car.position.z - CAMERA_LOOK_AHEAD
+      );
 
       renderer.render(scene, camera);
     }
