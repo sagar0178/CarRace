@@ -162,7 +162,7 @@
       return;
     }
     gameOver = false;
-    raceStatus.setAttribute("aria-live", "polite");
+    raceStatus.setAttribute("aria-live", "assertive");
     reviveButton.style.display = "none";
     raceStatus.textContent = "";
     player.x = centerCarX();
@@ -244,7 +244,7 @@
         buttonMode = "retry";
         reviveButton.textContent = "Retry Race";
         reviveButton.style.display = "inline-block";
-        raceStatus.setAttribute("aria-live", "polite");
+        raceStatus.setAttribute("aria-live", "assertive");
         raceStatus.textContent = "Race finished below top 2";
       }
     }
