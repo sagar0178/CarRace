@@ -1,6 +1,7 @@
 const state = {
   racing: true,
   crashed: false,
+  rewardViewed: false,
   carStart: { x: 164, y: 150 },
   carPos: { x: 164, y: 150 },
 };
@@ -29,11 +30,12 @@ function onRewardDeclined() {
 
 function triggerCrashRewardedAd() {
   if (typeof window.adBreak !== "function") {
+    // In local/dev environments the ad SDK may be unavailable, so continue gameplay for testability.
     resetCarPositionAndContinueRace();
     return;
   }
 
-  let adViewed = false;
+  state.rewardViewed = false;
 
   window.adBreak({
     type: "reward",
@@ -42,11 +44,11 @@ function triggerCrashRewardedAd() {
       showAdFn();
     },
     adViewed: () => {
-      adViewed = true;
+      state.rewardViewed = true;
       resetCarPositionAndContinueRace();
     },
     adDismissed: () => {
-      if (!adViewed) {
+      if (!state.rewardViewed) {
         onRewardDeclined();
       }
     },
