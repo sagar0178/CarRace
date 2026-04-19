@@ -56,16 +56,21 @@
   const LANE_COUNT = 3;
   const LANE_WIDTH = ROAD_WIDTH / LANE_COUNT;
   const FINISH_DISTANCE = 4200;
+  const PLAYER_WIDTH = 36;
+  const PLAYER_HEIGHT = 64;
+  const PLAYER_BASE_SPEED = 250;
+  const REVIVE_PROGRESS_PENALTY = 250;
   const OPPONENT_SPEEDS = [220, 240, 265];
   const OBSTACLE_COUNT = 6;
   const OPPONENT_COLORS = ["#ff4d4d", "#4d9dff", "#ffd24d"];
+  const centerCarX = () => ROAD_LEFT + ROAD_WIDTH / 2 - PLAYER_WIDTH / 2;
 
   const player = {
-    x: ROAD_LEFT + ROAD_WIDTH / 2 - 18,
+    x: centerCarX(),
     y: canvas.height - 110,
-    w: 36,
-    h: 64,
-    speed: 250,
+    w: PLAYER_WIDTH,
+    h: PLAYER_HEIGHT,
+    speed: PLAYER_BASE_SPEED,
     progress: 0,
     color: "#38d66b",
   };
@@ -73,8 +78,8 @@
   const opponents = OPPONENT_SPEEDS.map((speed, i) => ({
     x: laneCenterToX(i),
     y: 120 + i * 90,
-    w: 36,
-    h: 64,
+    w: PLAYER_WIDTH,
+    h: PLAYER_HEIGHT,
     speed,
     progress: 0,
     color: OPPONENT_COLORS[i],
@@ -92,7 +97,7 @@
 
   function laneCenterToX(laneIndex) {
     const lane = Math.max(0, Math.min(LANE_COUNT - 1, laneIndex));
-    return ROAD_LEFT + lane * LANE_WIDTH + LANE_WIDTH / 2 - 16;
+    return ROAD_LEFT + lane * LANE_WIDTH + LANE_WIDTH / 2 - PLAYER_WIDTH / 2;
   }
 
   function createObstacle(index) {
@@ -152,16 +157,16 @@
     gameOver = false;
     reviveButton.style.display = "none";
     raceStatus.textContent = "";
-    player.x = ROAD_LEFT + ROAD_WIDTH / 2 - 18;
-    player.progress = Math.max(0, player.progress - 250);
+    player.x = centerCarX();
+    player.progress = Math.max(0, player.progress - REVIVE_PROGRESS_PENALTY);
   });
 
   function advanceRound() {
     if (wonRound) return;
     wonRound = true;
     round += 1;
-    roundDisplay.textContent = "Round 2";
-    raceStatus.textContent = "Qualified! Moving to Round 2";
+    roundDisplay.textContent = `Round ${round}`;
+    raceStatus.textContent = `Qualified! Moving to Round ${round}`;
     window.dispatchEvent(new CustomEvent("roundChange", { detail: { round } }));
   }
 
@@ -170,7 +175,7 @@
 
     player.x += steerDirection * player.speed * dt;
     player.x = Math.max(ROAD_LEFT, Math.min(ROAD_LEFT + ROAD_WIDTH - player.w, player.x));
-    player.progress += 250 * dt;
+    player.progress += PLAYER_BASE_SPEED * dt;
 
     for (const car of opponents) {
       car.progress += car.speed * dt;
@@ -180,7 +185,7 @@
     }
 
     for (const obstacle of obstacles) {
-      obstacle.y += 250 * dt;
+      obstacle.y += PLAYER_BASE_SPEED * dt;
       if (obstacle.y > canvas.height + 30) {
         const replacement = createObstacle(0);
         obstacle.x = replacement.x;
@@ -228,7 +233,7 @@
 
   let roadOffset = 0;
   function render(dt) {
-    roadOffset += 250 * dt;
+    roadOffset += PLAYER_BASE_SPEED * dt;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawRoad(roadOffset);
     for (const obstacle of obstacles) drawObstacle(obstacle);
