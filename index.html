@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CarRace</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        background: #111;
+        color: #fff;
+      }
+      #game {
+        width: 360px;
+        padding: 16px;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #1a1a1a;
+      }
+      #track {
+        position: relative;
+        height: 220px;
+        border: 1px dashed #555;
+        margin: 12px 0;
+        overflow: hidden;
+      }
+      #car {
+        position: absolute;
+        width: 32px;
+        height: 54px;
+        border-radius: 6px;
+        background: #0af;
+        left: 164px;
+        top: 150px;
+        transition: left 80ms linear, top 80ms linear;
+      }
+      button {
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+    </style>
+
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_ADMOB_H5_AD_CLIENT"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adBreak = window.adConfig = function (o) {
+        window.adsbygoogle.push(o);
+      };
+      window.adConfig({
+        preloadAdBreaks: "on",
+        sound: "on",
+      });
+    </script>
+  </head>
+  <body>
+    <div id="game">
+      <div id="status">Race in progress. Press crash to simulate collision.</div>
+      <div id="track">
+        <div id="car"></div>
+      </div>
+      <button id="crash-btn" type="button">Crash</button>
+    </div>
+
+    <script src="./game.js"></script>
+  </body>
+</html>
