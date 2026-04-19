@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CarRace</title>
+    <title>Car Race</title>
     <style>
       body {
         margin: 0;
@@ -45,16 +45,19 @@
     </style>
 
     <!-- Required: replace YOUR_ADMOB_H5_AD_CLIENT with your real AdMob client ID before release. -->
-    <script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_ADMOB_H5_AD_CLIENT"
-      crossorigin="anonymous"
-    ></script>
     <script>
+      const AD_CLIENT = "YOUR_ADMOB_H5_AD_CLIENT";
       window.adsbygoogle = window.adsbygoogle || [];
       window.adBreak = window.adConfig = function (o) {
         window.adsbygoogle.push(o);
       };
+      if (AD_CLIENT && AD_CLIENT !== "YOUR_ADMOB_H5_AD_CLIENT") {
+        const sdk = document.createElement("script");
+        sdk.async = true;
+        sdk.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${AD_CLIENT}`;
+        sdk.crossOrigin = "anonymous";
+        document.head.appendChild(sdk);
+      }
       window.adConfig({
         preloadAdBreaks: "on",
         sound: "on",

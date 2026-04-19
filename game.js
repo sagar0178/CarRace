@@ -30,7 +30,7 @@ function onRewardDeclined() {
 
 function triggerCrashRewardedAd() {
   if (typeof window.adBreak !== "function") {
-    // In local/dev environments the ad SDK may be unavailable, so reset car position and continue race for testability.
+    // In local/dev environments the ad SDK may be unavailable, so reset car position and continue race for testing purposes.
     resetCarPositionAndContinueRace();
     return;
   }
