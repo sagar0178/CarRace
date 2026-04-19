@@ -38,6 +38,7 @@
       document.body.appendChild(el);
       return el;
     })();
+  raceStatus.setAttribute("aria-live", "assertive");
 
   const reviveButton =
     document.getElementById("reviveButton") ||
@@ -55,6 +56,8 @@
   const LANE_COUNT = 3;
   const LANE_WIDTH = ROAD_WIDTH / LANE_COUNT;
   const FINISH_DISTANCE = 4200;
+  const OPPONENT_SPEEDS = [220, 240, 265];
+  const OBSTACLE_COUNT = 6;
   const OPPONENT_COLORS = ["#ff4d4d", "#4d9dff", "#ffd24d"];
 
   const player = {
@@ -67,7 +70,7 @@
     color: "#38d66b",
   };
 
-  const opponents = [220, 240, 265].map((speed, i) => ({
+  const opponents = OPPONENT_SPEEDS.map((speed, i) => ({
     x: laneCenterToX(i),
     y: 120 + i * 90,
     w: 36,
@@ -77,7 +80,9 @@
     color: OPPONENT_COLORS[i],
   }));
 
-  const obstacles = Array.from({ length: 6 }, (_, i) => createObstacle(i));
+  const obstacles = Array.from({ length: OBSTACLE_COUNT }, (_, i) =>
+    createObstacle(i)
+  );
 
   let steerDirection = 0;
   let gameOver = false;
@@ -154,7 +159,7 @@
   function advanceRound() {
     if (wonRound) return;
     wonRound = true;
-    round = 2;
+    round += 1;
     roundDisplay.textContent = "Round 2";
     raceStatus.textContent = "Qualified! Moving to Round 2";
     window.dispatchEvent(new CustomEvent("roundChange", { detail: { round } }));
