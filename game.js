@@ -38,7 +38,7 @@
       document.body.appendChild(el);
       return el;
     })();
-  raceStatus.setAttribute("aria-live", "assertive");
+  raceStatus.setAttribute("aria-live", "polite");
 
   const reviveButton =
     document.getElementById("reviveButton") ||
@@ -59,7 +59,9 @@
   const PLAYER_WIDTH = 36;
   const PLAYER_HEIGHT = 64;
   const PLAYER_BASE_SPEED = 250;
+  const PLAYER_STEER_SPEED = 250;
   const REVIVE_PROGRESS_PENALTY = 250;
+  const OPPONENT_VISUAL_SCROLL_FACTOR = 0.6;
   const OPPONENT_SPEEDS = [220, 240, 265];
   const OBSTACLE_COUNT = 6;
   const OPPONENT_COLORS = ["#ff4d4d", "#4d9dff", "#ffd24d"];
@@ -93,6 +95,7 @@
   let gameOver = false;
   let round = 1;
   let wonRound = false;
+  let buttonMode = "revive";
   let lastTime = performance.now();
 
   function laneCenterToX(laneIndex) {
@@ -154,12 +157,42 @@
   });
 
   reviveButton.addEventListener("click", () => {
+    if (buttonMode === "retry") {
+      resetRace();
+      return;
+    }
     gameOver = false;
+    raceStatus.setAttribute("aria-live", "polite");
     reviveButton.style.display = "none";
     raceStatus.textContent = "";
     player.x = centerCarX();
     player.progress = Math.max(0, player.progress - REVIVE_PROGRESS_PENALTY);
   });
+
+  function resetRace() {
+    gameOver = false;
+    wonRound = false;
+    round = 1;
+    buttonMode = "revive";
+    reviveButton.textContent = "Watch Ad to Revive";
+    reviveButton.style.display = "none";
+    raceStatus.setAttribute("aria-live", "polite");
+    raceStatus.textContent = "";
+    roundDisplay.textContent = "Round 1";
+    player.x = centerCarX();
+    player.progress = 0;
+    opponents.forEach((car, i) => {
+      car.x = laneCenterToX(i);
+      car.y = 120 + i * 90;
+      car.progress = 0;
+    });
+    obstacles.forEach((obstacle, i) => {
+      const next = createObstacle(i);
+      obstacle.x = next.x;
+      obstacle.y = next.y;
+    });
+    updatePositionDisplay();
+  }
 
   function advanceRound() {
     if (wonRound) return;
@@ -173,13 +206,14 @@
   function update(dt) {
     if (gameOver || wonRound) return;
 
-    player.x += steerDirection * player.speed * dt;
+    player.x += steerDirection * PLAYER_STEER_SPEED * dt;
     player.x = Math.max(ROAD_LEFT, Math.min(ROAD_LEFT + ROAD_WIDTH - player.w, player.x));
     player.progress += PLAYER_BASE_SPEED * dt;
 
     for (const car of opponents) {
       car.progress += car.speed * dt;
-      car.y += (player.speed - car.speed) * dt * 0.6;
+      car.y +=
+        (player.speed - car.speed) * dt * OPPONENT_VISUAL_SCROLL_FACTOR;
       if (car.y > canvas.height + 80) car.y = -80;
       if (car.y < -100) car.y = canvas.height + 20;
     }
@@ -193,7 +227,10 @@
       }
       if (isColliding(player, obstacle)) {
         gameOver = true;
+        buttonMode = "revive";
+        reviveButton.textContent = "Watch Ad to Revive";
         reviveButton.style.display = "inline-block";
+        raceStatus.setAttribute("aria-live", "assertive");
         raceStatus.textContent = "Crash! Watch Ad to Revive";
       }
     }
@@ -204,6 +241,10 @@
         advanceRound();
       } else {
         gameOver = true;
+        buttonMode = "retry";
+        reviveButton.textContent = "Retry Race";
+        reviveButton.style.display = "inline-block";
+        raceStatus.setAttribute("aria-live", "polite");
         raceStatus.textContent = "Race finished below top 2";
       }
     }
